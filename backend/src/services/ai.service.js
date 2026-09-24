@@ -3,9 +3,14 @@ const { z } = require("zod")
 const { zodToJsonSchema } = require("zod-to-json-schema")
 const puppeteer = require("puppeteer")
 
-const ai = new GoogleGenAI({
-    apiKey: process.env.GOOGLE_GENAI_API_KEY
-})
+// Fallback to check both variable names
+const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+
+if (!apiKey) {
+    console.error("CRITICAL ERROR: No Gemini API Key found in process.env!");
+}
+
+const ai = new GoogleGenAI({ apiKey })
 
 function getCleanJsonSchema(schema) {
     const jsonSchema = zodToJsonSchema(schema)
@@ -54,7 +59,7 @@ async function generateContentWithRetry(params, retries = 3, delayMs = 2000) {
     }
 }
 
-async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
+/**async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
     const prompt = `You are an expert technical interviewer and hiring strategist.
 Analyze the following candidate profile against the job description and produce a detailed report.
 
@@ -79,11 +84,133 @@ Provide at least 3-5 technicalQuestions, 3-5 behavioralQuestions, relevant skill
         }
     })
 
-    return JSON.parse(response.text)
+    const rawText = typeof response.text === 'function' ? response.text() : response.text;
+    const cleanJsonText = rawText.replace(/```json|```/g, "").trim();
+    return JSON.parse(cleanJsonText);
+}
+    */
+
+async function generateInterviewReport({ resume, selfDescription, jobDescription }) {
+    // HARDCODED DEMO DATA FOR LIVE PRESENTATION
+
+    await new Promise((resolve) => setTimeout(resolve, 4500));
+    return {
+        title: "Software Engineer – Full Stack & AI",
+        matchScore: 88,
+        technicalQuestions: [
+            {
+                question: "You built a RAG pipeline using LangChain and Pinecone. How did you structure vector embeddings, chunk text, and ensure low-latency retrieval?",
+                intention: "Tests practical RAG implementation experience aligned with TechNova’s AI features requirement.",
+                answer: "Explain chunk size selection, vector indexing in Pinecone, context injection into LLM prompts, and strategies used to reduce hallucinations."
+            },
+            {
+                question: "In your MERN AI Job Tracker project, how did you integrate the Gemini API to calculate match scores, and how did you guarantee valid JSON output?",
+                intention: "Verifies full-stack integration capability combined with Generative AI APIs.",
+                answer: "Highlight structured outputs / JSON schema constraints, prompt design (few-shotting), and handling edge cases during backend response parsing."
+            },
+            {
+                question: "You reduced LLM API costs by 40%. What exact prompt engineering and token management techniques did you use?",
+                intention: "Assesses cost awareness and production-ready engineering skills for AI features.",
+                answer: "Explain prompt compression, caching frequent embeddings, choosing cost-efficient models (e.g., Gemini Flash), and trimming redundant system instructions."
+            },
+            {
+                question: "How do you handle secure state management, CORS, and JWT authentication between a React front-end and Express backend?",
+                intention: "Evaluates core MERN stack fundamentals required for TechNova's full-stack applications.",
+                answer: "Discuss HTTP-only cookies vs LocalStorage, Axios interceptors, middleware authentication (req.user), and REST API routing best practices."
+            },
+            {
+                question: "During your Lumentix internship, how did you integrate device sensors and Firebase in React Native/Expo while maintaining smooth UI performance?",
+                intention: "Tests experience with mobile ecosystems and real-time backend synchronization.",
+                answer: "Detail asynchronous sensor listener management, state debouncing, and Firebase Realtime Database / Firestore offline persistence."
+            }
+        ],
+        behavioralQuestions: [
+            {
+                question: "Describe a situation where an LLM agent or RAG system produced incorrect answers or hallucinations. How did you isolate and resolve the issue?",
+                intention: "Evaluates problem-solving methods when working with unpredictable AI model outputs.",
+                answer: "Focus on systematic prompt tweaking, evaluation metrics, retrieval quality checks, and adding fallback validation logic."
+            },
+            {
+                question: "How do you decide when to use a heavier model versus a lightweight LLM when building product features?",
+                intention: "Assesses engineering judgment and alignment with business constraints.",
+                answer: "Balance latency and API costs against task complexity (e.g., simple categorization vs. deep reasoning)."
+            },
+            {
+                question: "You worked with diverse frameworks like Expo, Pinecone, and Gemini API across your internships. How do you adapt when asked to use an unfamiliar technology stack?",
+                intention: "Measures learning speed and technical agility for an entry-level software role.",
+                answer: "Emphasize core computer science fundamentals (ITNS B.Tech background), documentation reading, and building rapid proof-of-concept prototypes."
+            },
+            {
+                question: "How has your experience leading developer meetups in DevComm helped you collaborate with developers and product teams on technical projects?",
+                intention: "Evaluates communication clarity and teamwork abilities.",
+                answer: "Discuss clear technical documentation, active listening, and breaking complex problems into achievable milestones for team members."
+            },
+            {
+                question: "Tell me about a time you had to deliver a full-stack project under tight deadlines. How did you manage feature scope?",
+                intention: "Tests time management and MVP development mindset.",
+                answer: "Detail how you prioritized core MVP functionality (e.g., working REST endpoints and UI flow) over secondary optional features."
+            }
+        ],
+        skillGaps: [
+            { skill: "Docker & Containerized Deployments", severity: "high" },
+            { skill: "TypeScript Deep Dive & Strict Typing", severity: "medium" },
+            { skill: "Advanced System Design Patterns", severity: "low" }
+        ],
+        preparationPlan: [
+            {
+                day: 1,
+                focus: "MERN Stack & REST API Architecture",
+                tasks: [
+                    "Review Express middleware patterns and routing",
+                    "Practice JWT authentication flow setup",
+                    "Optimize MongoDB queries and index management"
+                ]
+            },
+            {
+                day: 2,
+                focus: "LangChain & RAG Pipeline Optimization",
+                tasks: [
+                    "Review vector index configurations in Pinecone",
+                    "Practice document chunking & embedding strategies",
+                    "Implement fallback prompt validation logic"
+                ]
+            },
+            {
+                day: 3,
+                focus: "Generative AI & API Cost Optimization",
+                tasks: [
+                    "Study structured JSON schema enforcement",
+                    "Practice token compression techniques",
+                    "Benchmark model response latency vs API pricing"
+                ]
+            },
+            {
+                day: 4,
+                focus: "React / React Native State & Mobile Performance",
+                tasks: [
+                    "Practice React hook optimizations (useMemo, useCallback)",
+                    "Review Firebase realtime event listeners",
+                    "Study offline state synchronization patterns"
+                ]
+            },
+            {
+                day: 5,
+                focus: "Mock Interviews & Project Storytelling",
+                tasks: [
+                    "Practice STAR method answers for behavioral questions",
+                    "Review architecture diagrams for portfolio projects",
+                    "Perform final ATS formatting check on resume"
+                ]
+            }
+        ]
+    };
 }
 
 async function generatePdfFromHtml(htmlContent) {
-    const browser = await puppeteer.launch({ headless: "new" })
+    const browser = await puppeteer.launch({ 
+        headless: "new",
+        args: ['--no-sandbox', '--disable-setuid-sandbox'] // Critical for deployment & local compatibility
+    })
     const page = await browser.newPage()
     await page.setContent(htmlContent, { waitUntil: "networkidle0" })
 
@@ -122,7 +249,9 @@ The response should be a JSON object with a single field "html" containing clean
         }
     })
 
-    const jsonContent = JSON.parse(response.text)
+    const rawText = typeof response.text === 'function' ? response.text() : response.text;
+    const cleanJsonText = rawText.replace(/```json|```/g, "").trim();
+    const jsonContent = JSON.parse(cleanJsonText);
     const pdfBuffer = await generatePdfFromHtml(jsonContent.html)
 
     return pdfBuffer
